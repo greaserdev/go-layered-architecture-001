@@ -45,6 +45,7 @@ var repositorySet = googleWire.NewSet(
 
 func AppController() *controllers.ControllerRegistry {
 	googleWire.Build(
+		configSet,
 		serviceSet,
 		controllerSet,
 		repositorySet,

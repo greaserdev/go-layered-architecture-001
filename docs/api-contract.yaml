@@ -10,7 +10,7 @@ servers:
     description: Base path API versi 1
 
 paths:
-  /redirects/google-oauth:
+  /r/google-oauth:
     get:
       # Group name direpresentasikan dengan 'tags' di Swagger
       tags:

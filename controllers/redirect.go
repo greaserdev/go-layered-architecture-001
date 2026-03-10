@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"be-test/services"
+	"be-test/utils"
+	"context"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,9 +20,29 @@ type RedirectControllerImpl struct {
 func (r *RedirectControllerImpl) HandleGoogleOauthRedirect(c *gin.Context) {
 	code := c.Query("code")
 
-	c.JSON(
-		200,
-		gin.H{"code": code},
+	token, err := r.googleOauthService.ExchangeCode(
+		context.Background(),
+		code,
+	)
+	if err != nil {
+		utils.HttpErrorBadRequest(
+			c,
+			err.Error(),
+		)
+	}
+
+	user, err := r.googleOauthService.GetGoogleUserData(token.AccessToken)
+	if err != nil {
+		utils.HttpErrorBadRequest(
+			c,
+			err.Error(),
+		)
+	}
+
+	utils.HttpSuccessOK(
+		c,
+		"OK",
+		user,
 	)
 
 }

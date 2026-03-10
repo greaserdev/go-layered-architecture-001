@@ -19,7 +19,9 @@ import (
 func AppController() *controllers.ControllerRegistry {
 	userRepositoryImpl := repositories.NewUserRepository()
 	userServiceImpl := services.NewUserServiceImpl(userRepositoryImpl)
-	redirectControllerImpl := controllers.NewRedirectController(userServiceImpl)
+	oauthConfig := config.GoogleOauthConfigInit()
+	googleOauthServiceImpl := services.NewGoogleOauthService(oauthConfig)
+	redirectControllerImpl := controllers.NewRedirectController(userServiceImpl, googleOauthServiceImpl)
 	controllerRegistry := controllers.NewControllerRegistry(redirectControllerImpl)
 	return controllerRegistry
 }
