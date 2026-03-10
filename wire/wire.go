@@ -4,6 +4,7 @@
 package wire
 
 import (
+	"be-test/config"
 	"be-test/controllers"
 	"be-test/repositories"
 	"be-test/services"
@@ -11,11 +12,18 @@ import (
 	googleWire "github.com/google/wire"
 )
 
+var configSet = googleWire.NewSet(config.GoogleOauthConfigInit)
+
 var serviceSet = googleWire.NewSet(
 	services.NewUserServiceImpl,
 	googleWire.Bind(
 		new(services.UserService),
 		new(*services.UserServiceImpl),
+	),
+	services.NewGoogleOauthService,
+	googleWire.Bind(
+		new(services.GoogleOauthService),
+		new(*services.GoogleOauthServiceImpl),
 	),
 )
 

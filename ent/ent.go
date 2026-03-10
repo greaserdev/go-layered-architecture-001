@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"be-test/ent/credential"
 	"be-test/ent/user"
 	"context"
 	"errors"
@@ -73,7 +74,8 @@ var (
 func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			user.Table: user.ValidColumn,
+			credential.Table: credential.ValidColumn,
+			user.Table:       user.ValidColumn,
 		})
 	})
 	return columnCheck(t, c)
@@ -604,5 +606,5 @@ func scanWithInterceptors[Q1 ent.Query, Q2 interface {
 	return nil
 }
 
-// queryHook describes an controllers hook for the different sqlAll methods.
+// queryHook describes an internal hook for the different sqlAll methods.
 type queryHook func(context.Context, *sqlgraph.QuerySpec)

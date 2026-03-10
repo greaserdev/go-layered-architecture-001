@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"be-test/ent/credential"
 	"be-test/ent/predicate"
 	"be-test/ent/user"
 	"context"
@@ -69,9 +70,34 @@ func (_u *UserUpdate) SetNillableLastName(v *string) *UserUpdate {
 	return _u
 }
 
+// SetCredentialID sets the "credential" edge to the Credential entity by ID.
+func (_u *UserUpdate) SetCredentialID(id int) *UserUpdate {
+	_u.mutation.SetCredentialID(id)
+	return _u
+}
+
+// SetNillableCredentialID sets the "credential" edge to the Credential entity by ID if the given value is not nil.
+func (_u *UserUpdate) SetNillableCredentialID(id *int) *UserUpdate {
+	if id != nil {
+		_u = _u.SetCredentialID(*id)
+	}
+	return _u
+}
+
+// SetCredential sets the "credential" edge to the Credential entity.
+func (_u *UserUpdate) SetCredential(v *Credential) *UserUpdate {
+	return _u.SetCredentialID(v.ID)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (_u *UserUpdate) Mutation() *UserMutation {
 	return _u.mutation
+}
+
+// ClearCredential clears the "credential" edge to the Credential entity.
+func (_u *UserUpdate) ClearCredential() *UserUpdate {
+	_u.mutation.ClearCredential()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -142,6 +168,35 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.LastName(); ok {
 		_spec.SetField(user.FieldLastName, field.TypeString, value)
 	}
+	if _u.mutation.CredentialCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   user.CredentialTable,
+			Columns: []string{user.CredentialColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(credential.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.CredentialIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   user.CredentialTable,
+			Columns: []string{user.CredentialColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(credential.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{user.Label}
@@ -204,9 +259,34 @@ func (_u *UserUpdateOne) SetNillableLastName(v *string) *UserUpdateOne {
 	return _u
 }
 
+// SetCredentialID sets the "credential" edge to the Credential entity by ID.
+func (_u *UserUpdateOne) SetCredentialID(id int) *UserUpdateOne {
+	_u.mutation.SetCredentialID(id)
+	return _u
+}
+
+// SetNillableCredentialID sets the "credential" edge to the Credential entity by ID if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableCredentialID(id *int) *UserUpdateOne {
+	if id != nil {
+		_u = _u.SetCredentialID(*id)
+	}
+	return _u
+}
+
+// SetCredential sets the "credential" edge to the Credential entity.
+func (_u *UserUpdateOne) SetCredential(v *Credential) *UserUpdateOne {
+	return _u.SetCredentialID(v.ID)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (_u *UserUpdateOne) Mutation() *UserMutation {
 	return _u.mutation
+}
+
+// ClearCredential clears the "credential" edge to the Credential entity.
+func (_u *UserUpdateOne) ClearCredential() *UserUpdateOne {
+	_u.mutation.ClearCredential()
+	return _u
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -306,6 +386,35 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 	}
 	if value, ok := _u.mutation.LastName(); ok {
 		_spec.SetField(user.FieldLastName, field.TypeString, value)
+	}
+	if _u.mutation.CredentialCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   user.CredentialTable,
+			Columns: []string{user.CredentialColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(credential.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.CredentialIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   user.CredentialTable,
+			Columns: []string{user.CredentialColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(credential.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &User{config: _u.config}
 	_spec.Assign = _node.assignValues

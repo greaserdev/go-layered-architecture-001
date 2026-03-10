@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"be-test/ent/credential"
 	"be-test/ent/schema"
 	"be-test/ent/user"
 
@@ -13,6 +14,12 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	credentialFields := schema.Credential{}.Fields()
+	_ = credentialFields
+	// credentialDescPassword is the schema descriptor for Password field.
+	credentialDescPassword := credentialFields[0].Descriptor()
+	// credential.PasswordValidator is a validator for the "Password" field. It is called by the builders before save.
+	credential.PasswordValidator = credentialDescPassword.Validators[0].(func(string) error)
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescEmail is the schema descriptor for email field.

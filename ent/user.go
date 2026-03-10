@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"be-test/ent/credential"
 	"be-test/ent/user"
 	"fmt"
 	"strings"
@@ -22,8 +23,32 @@ type User struct {
 	// FirstName holds the value of the "first_name" field.
 	FirstName string `json:"first_name,omitempty"`
 	// LastName holds the value of the "last_name" field.
-	LastName     string `json:"last_name,omitempty"`
-	selectValues sql.SelectValues
+	LastName string `json:"last_name,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the UserQuery when eager-loading is set.
+	Edges           UserEdges `json:"edges"`
+	credential_user *int
+	selectValues    sql.SelectValues
+}
+
+// UserEdges holds the relations/edges for other nodes in the graph.
+type UserEdges struct {
+	// Credential holds the value of the credential edge.
+	Credential *Credential `json:"credential,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// CredentialOrErr returns the Credential value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UserEdges) CredentialOrErr() (*Credential, error) {
+	if e.Credential != nil {
+		return e.Credential, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: credential.Label}
+	}
+	return nil, &NotLoadedError{edge: "credential"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -35,6 +60,8 @@ func (*User) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case user.FieldID:
 			values[i] = new(uuid.UUID)
+		case user.ForeignKeys[0]: // credential_user
+			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -74,6 +101,13 @@ func (_m *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.LastName = value.String
 			}
+		case user.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field credential_user", value)
+			} else if value.Valid {
+				_m.credential_user = new(int)
+				*_m.credential_user = int(value.Int64)
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -85,6 +119,11 @@ func (_m *User) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *User) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
+}
+
+// QueryCredential queries the "credential" edge of the User entity.
+func (_m *User) QueryCredential() *CredentialQuery {
+	return NewUserClient(_m.config).QueryCredential(_m)
 }
 
 // Update returns a builder for updating this User.

@@ -1,0 +1,62 @@
+openapi: 3.0.0
+info:
+  title: API Contract Auth
+  description: Kontrak API independen untuk sistem autentikasi.
+  version: 1.0.0
+
+# Base path diletakkan di sini
+servers:
+  - url: http://localhost:5500/api/v1
+    description: Base path API versi 1
+
+paths:
+  /redirects/google-oauth:
+    get:
+      # Group name direpresentasikan dengan 'tags' di Swagger
+      tags:
+        - redirection
+      summary: Google OAuth Redirection
+      description: Endpoint untuk menerima callback code dari Google OAuth.
+      parameters:
+        - name: code
+          in: query
+          required: true
+          description: Kode otorisasi yang dikirimkan oleh Google setelah user login.
+          schema:
+            type: string
+          example: "4/0AfgeXvu8..." # Contoh input query
+
+      responses:
+        '200':
+          description: Berhasil melakukan pertukaran kode dengan access token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                      user_email:
+                        type: string
+              # Contoh response ditulis langsung di sini
+              example:
+                status: "success"
+                message: "Autentikasi Google berhasil"
+                data:
+                  token: "eyJhbGciOiJIUzI1NiIsInR5..."
+                  user_email: "user@example.com"
+
+        '400':
+          description: Kode otorisasi tidak valid atau sudah kedaluwarsa
+          content:
+            application/json:
+              example:
+                status: "error"
+                message: "Invalid authorization code"

@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"be-test/domain"
 	"be-test/services"
 
 	"github.com/gin-gonic/gin"
@@ -12,25 +11,26 @@ type RedirectController interface {
 }
 
 type RedirectControllerImpl struct {
-	userService services.UserService
+	userService        services.UserService
+	googleOauthService services.GoogleOauthService
 }
 
 func (r *RedirectControllerImpl) HandleGoogleOauthRedirect(c *gin.Context) {
+	code := c.Query("code")
+
 	c.JSON(
 		200,
-		gin.H{
-			"ping": r.userService.FindUser(
-				c.Request.Context(),
-				domain.UserServiceFindUserArg{
-					Email:     "ihsan@gmail.com",
-					FirstName: "",
-					LastName:  "",
-				},
-			),
-		},
+		gin.H{"code": code},
 	)
+
 }
 
-func NewRedirectController(user services.UserService) *RedirectControllerImpl {
-	return &RedirectControllerImpl{userService: user}
+func NewRedirectController(
+	user services.UserService,
+	googleOauth services.GoogleOauthService,
+) *RedirectControllerImpl {
+	return &RedirectControllerImpl{
+		userService:        user,
+		googleOauthService: googleOauth,
+	}
 }

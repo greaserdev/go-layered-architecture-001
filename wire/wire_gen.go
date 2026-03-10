@@ -7,6 +7,7 @@
 package wire
 
 import (
+	"be-test/config"
 	"be-test/controllers"
 	"be-test/repositories"
 	"be-test/services"
@@ -25,9 +26,14 @@ func AppController() *controllers.ControllerRegistry {
 
 // wire.go:
 
+var configSet = wire.NewSet(config.GoogleOauthConfigInit)
+
 var serviceSet = wire.NewSet(services.NewUserServiceImpl, wire.Bind(
 	new(services.UserService),
 	new(*services.UserServiceImpl),
+), services.NewGoogleOauthService, wire.Bind(
+	new(services.GoogleOauthService),
+	new(*services.GoogleOauthServiceImpl),
 ),
 )
 

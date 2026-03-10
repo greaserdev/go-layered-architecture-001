@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"be-test/ent/credential"
 	"be-test/ent/user"
 	"context"
 	"errors"
@@ -50,6 +51,25 @@ func (_c *UserCreate) SetNillableID(v *uuid.UUID) *UserCreate {
 		_c.SetID(*v)
 	}
 	return _c
+}
+
+// SetCredentialID sets the "credential" edge to the Credential entity by ID.
+func (_c *UserCreate) SetCredentialID(id int) *UserCreate {
+	_c.mutation.SetCredentialID(id)
+	return _c
+}
+
+// SetNillableCredentialID sets the "credential" edge to the Credential entity by ID if the given value is not nil.
+func (_c *UserCreate) SetNillableCredentialID(id *int) *UserCreate {
+	if id != nil {
+		_c = _c.SetCredentialID(*id)
+	}
+	return _c
+}
+
+// SetCredential sets the "credential" edge to the Credential entity.
+func (_c *UserCreate) SetCredential(v *Credential) *UserCreate {
+	return _c.SetCredentialID(v.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -165,6 +185,23 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.LastName(); ok {
 		_spec.SetField(user.FieldLastName, field.TypeString, value)
 		_node.LastName = value
+	}
+	if nodes := _c.mutation.CredentialIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   user.CredentialTable,
+			Columns: []string{user.CredentialColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(credential.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.credential_user = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

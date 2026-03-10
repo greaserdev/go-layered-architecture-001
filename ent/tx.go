@@ -12,6 +12,8 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
+	// Credential is the client for interacting with the Credential builders.
+	Credential *CredentialClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 
@@ -145,17 +147,18 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
+	tx.Credential = NewCredentialClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.
 // The idea is to support transactions without adding any extra code to the builders.
 // When a builder calls to driver.Tx(), it gets the same dialect.Tx instance.
-// Commit and Rollback are nop for the controllers builders and the user must call one
+// Commit and Rollback are nop for the internal builders and the user must call one
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: User.QueryXXX(), the query will be executed
+// applies a query, for example: Credential.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.
@@ -180,7 +183,7 @@ func newTx(ctx context.Context, drv dialect.Driver) (*txDriver, error) {
 }
 
 // Tx returns the transaction wrapper (txDriver) to avoid Commit or Rollback calls
-// from the controllers builders. Should be called only by the controllers builders.
+// from the internal builders. Should be called only by the internal builders.
 func (tx *txDriver) Tx(context.Context) (dialect.Tx, error) { return tx, nil }
 
 // Dialect returns the dialect of the driver we started the transaction from.
@@ -189,11 +192,11 @@ func (tx *txDriver) Dialect() string { return tx.drv.Dialect() }
 // Close is a nop close.
 func (*txDriver) Close() error { return nil }
 
-// Commit is a nop commit for the controllers builders.
+// Commit is a nop commit for the internal builders.
 // User must call `Tx.Commit` in order to commit the transaction.
 func (*txDriver) Commit() error { return nil }
 
-// Rollback is a nop rollback for the controllers builders.
+// Rollback is a nop rollback for the internal builders.
 // User must call `Tx.Rollback` in order to rollback the transaction.
 func (*txDriver) Rollback() error { return nil }
 
