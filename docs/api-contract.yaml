@@ -34,24 +34,31 @@ paths:
               schema:
                 type: object
                 properties:
-                  status:
-                    type: string
+                  code:
+                    type: integer
                   message:
                     type: string
                   data:
                     type: object
                     properties:
-                      token:
+                      access_token:
+                        type: string
+                      refresh_token:
                         type: string
                       user_email:
                         type: string
+                      is_new_account:
+                        type: boolean
+
               # Contoh response ditulis langsung di sini
               example:
-                status: "success"
-                message: "Autentikasi Google berhasil"
+                code: 200
+                message: "Google Authenticated"
                 data:
-                  token: "eyJhbGciOiJIUzI1NiIsInR5..."
+                  access_token: "eyJhbGciOiJIUzI1NiIsInR5..."
+                  refresh_token: "eyJhbGciOiJIUzI1NiIsInR5..."
                   user_email: "user@example.com"
+                  is_new_account: true
 
         '400':
           description: Kode otorisasi tidak valid atau sudah kedaluwarsa

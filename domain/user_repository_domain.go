@@ -14,3 +14,17 @@ type UserRepositoryFindFirstReturn struct {
 	LastName  string
 	Email     string
 }
+
+type UserRepositoryCreateUserArgs struct {
+	Email     string
+	FirstName string
+	LastName  string
+	Password  *string
+}
+
+type UserRepositoryCreateUserReturn struct {
+	ID        uuid.UUID
+	FirstName string
+	LastName  string
+	Email     string
+}
